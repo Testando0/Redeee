@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InstaNeon - Social App</title>
+    <!-- Carregamos o Tailwind para estilizar -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <!-- ESTE É O PONTO DE PARTIDA: O React injetará todo o App.jsx aqui. -->
+    <div id="root"></div>
+    
+    <!-- Este script inicia o motor de partida (main.jsx) -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
