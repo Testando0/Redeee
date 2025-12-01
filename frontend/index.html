@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InstaNeon - Social App</title>
-    <!-- Carregamos o Tailwind para estilizar -->
+    <!-- Tailwind CSS para estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      // Configuração simples para cores
       tailwind.config = {
         theme: {
           extend: {
@@ -19,11 +20,10 @@
     </script>
   </head>
   <body>
-    <!-- ESTE É O PONTO DE PARTIDA: O React injetará todo o App.jsx aqui. -->
+    <!-- O ponto de montagem do React -->
     <div id="root"></div>
-    
-    <!-- Este script inicia o motor de partida (main.jsx) -->
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- CRÍTICO: Caminho corrigido para buscar App.jsx diretamente na raiz /frontend -->
+    <script type="module" src="/App.jsx"></script>
   </body>
 </html>
 
