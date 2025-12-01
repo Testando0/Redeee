@@ -1,18 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// O ponto de falha está quase sempre aqui: o Vite não consegue encontrar
-// o index.html porque está em uma pasta vizinha (frontend).
+// Esta configuração garante que o Vite use a pasta 'frontend' como raiz
+// do projeto e coloque o build na pasta 'dist' na raiz do Docker (/app/dist).
 
 export default defineConfig({
   plugins: [react()],
+  root: './frontend', // Diz ao Vite para procurar index.html e main.jsx aqui
   build: {
-    // Define o ponto de entrada como o index.html na pasta 'frontend'
-    rollupOptions: {
-      input: 'frontend/index.html', 
-    },
-    // O diretório de saída será 'dist', dentro da pasta 'backend'
-    outDir: 'dist',
+    // A pasta de saída do build (será /app/dist no Docker)
+    outDir: '../dist', 
     emptyOutDir: true
   }
 });
