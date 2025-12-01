@@ -5,8 +5,9 @@ import { Heart, MessageCircle, Send, PlusSquare, Home, Camera, X, MoreHorizontal
 const Button = ({ children, onClick, variant = 'primary', className = '', disabled }) => {
   const baseStyle = "px-4 py-2 rounded-lg font-semibold text-sm transition-colors duration-200 flex items-center justify-center";
   const variants = {
-    primary: "bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300",
-    secondary: "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300",
+    // Cores de botão ajustadas para o tema escuro
+    primary: "bg-fuchsia-500 text-white hover:bg-fuchsia-600 disabled:bg-fuchsia-800",
+    secondary: "bg-gray-700 text-gray-100 hover:bg-gray-600 border border-gray-600",
   };
   return (
     <button onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
@@ -24,8 +25,6 @@ const currentUser = {
   avatar: 'https://ui-avatars.com/api/?name=Neon+Dev&background=0D8ABC&color=fff'
 };
 
-// ATUALIZAÇÃO CRÍTICA: Em produção, a API e o Frontend rodam no mesmo host.
-// Por isso, deixamos a URL vazia e usamos o prefixo /api nas chamadas.
 const API_URL = ''; 
 
 export default function App() {
@@ -43,7 +42,7 @@ export default function App() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      // ATUALIZADO: Usando /api/posts
+      // Usando /api/posts para produção
       const res = await fetch(`${API_URL}/api/posts`); 
       if (!res.ok) throw new Error('Falha na API');
       const data = await res.json();
@@ -69,7 +68,7 @@ export default function App() {
     };
 
     try {
-      // ATUALIZADO: Usando /api/posts
+      // Usando /api/posts para produção
       const res = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,7 +91,7 @@ export default function App() {
   };
 
   const handleLike = async (postId) => {
-    // Atualização otimista: UI atualiza antes da resposta da API
+    // Atualização otimista
     setPosts(posts.map(post => {
       if (post.id === postId) {
         return { ...post, likes: (post.likes || 0) + 1 };
@@ -101,12 +100,10 @@ export default function App() {
     }));
 
     try {
-      // ATUALIZADO: Usando /api/posts/:id/like
+      // Usando /api/posts/:id/like para produção
       await fetch(`${API_URL}/api/posts/${postId}/like`, { method: 'POST' });
     } catch (error) {
       console.error("Erro ao dar like no servidor.");
-      // Em caso de falha, o usuário veria o like revertido ao recarregar, mas 
-      // para simplificar, não revertemos a contagem aqui.
     }
   };
 
@@ -117,25 +114,27 @@ export default function App() {
   // --- Views ---
 
   const renderHeader = () => (
-    <div className="sticky top-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4">
-      <h1 className="text-xl font-bold font-serif tracking-wider text-gray-800">InstaNeon</h1>
+    // DARK MODE: Header em fundo preto, texto branco e borda discreta
+    <div className="sticky top-0 z-50 bg-black border-b border-gray-800 h-14 flex items-center justify-between px-4">
+      <h1 className="text-xl font-bold font-serif tracking-wider text-gray-100">InstaNeon</h1>
       <div className="flex gap-4">
-        <Heart size={24} className="text-gray-800 hover:text-red-500" />
-        <MessageCircle size={24} className="text-gray-800 hover:text-blue-500" />
+        <Heart size={24} className="text-gray-100 hover:text-red-500" />
+        <MessageCircle size={24} className="text-gray-100 hover:text-fuchsia-500" />
       </div>
     </div>
   );
 
   const renderBottomNav = () => (
-    <div className="fixed bottom-0 w-full bg-white border-t border-gray-200 h-12 flex items-center justify-around z-50 pb-1 max-w-md mx-auto left-0 right-0">
-      <button onClick={() => setView('home')} className={view === 'home' ? "text-black" : "text-gray-500 hover:text-black"}>
+    // DARK MODE: Nav bar em fundo preto com ícones brancos/cinzas
+    <div className="fixed bottom-0 w-full bg-black border-t border-gray-800 h-12 flex items-center justify-around z-50 pb-1 max-w-md mx-auto left-0 right-0">
+      <button onClick={() => setView('home')} className={view === 'home' ? "text-white" : "text-gray-500 hover:text-white"}>
         <Home size={24} strokeWidth={view === 'home' ? 3 : 2} />
       </button>
-      <button onClick={() => setView('create')} className={view === 'create' ? "text-black" : "text-gray-500 hover:text-black"}>
+      <button onClick={() => setView('create')} className={view === 'create' ? "text-white" : "text-gray-500 hover:text-white"}>
         <PlusSquare size={24} strokeWidth={view === 'create' ? 3 : 2} />
       </button>
-      <button onClick={() => setView('profile')} className={view === 'profile' ? "text-black" : "text-gray-500 hover:text-black"}>
-        <div className={`w-6 h-6 rounded-full overflow-hidden ${view === 'profile' ? 'border-2 border-black p-[1px]' : ''}`}>
+      <button onClick={() => setView('profile')} className={view === 'profile' ? "text-white" : "text-gray-500 hover:text-white"}>
+        <div className={`w-6 h-6 rounded-full overflow-hidden ${view === 'profile' ? 'border-2 border-fuchsia-500 p-[1px]' : ''}`}>
            <img src={currentUser.avatar} className="w-full h-full rounded-full" />
         </div>
       </button>
@@ -145,61 +144,62 @@ export default function App() {
   const renderFeed = () => (
     <div className="pb-16 max-w-md mx-auto">
       {loading ? (
-        <div className="flex flex-col items-center justify-center pt-20 text-gray-500">
+        <div className="flex flex-col items-center justify-center pt-20 text-gray-400">
            <Loader2 className="animate-spin mb-2" size={32} />
            <p className="text-sm">Carregando posts do Neon DB...</p>
         </div>
       ) : posts.length === 0 ? (
-        <div className="p-8 text-center text-gray-500 bg-white rounded-lg m-4 shadow-sm">
+        // DARK MODE: Card de estado vazio
+        <div className="p-8 text-center text-gray-300 bg-gray-800 rounded-lg m-4 shadow-xl">
           <p className="font-semibold mb-2">Seu feed está vazio!</p>
-          <p className="text-sm">Você está conectado ao seu banco Neon, mas ainda não há posts. Clique em 
-          <span className="font-bold"> + </span> para criar um!</p>
-          <p className="text-xs text-red-500 mt-4">Verifique se o seu servidor (server.js) está rodando na porta 3001.</p>
+          <p className="text-sm">Você está conectado ao seu banco Neon, mas ainda não há posts.</p>
+          <p className="text-xs text-red-400 mt-4">Verifique se o seu servidor (server.js) está rodando.</p>
         </div>
       ) : (
         posts.map(post => (
-          <article key={post.id} className="bg-white border-b border-gray-200 mb-2 last:mb-0">
+          // DARK MODE: Post individual em fundo preto
+          <article key={post.id} className="bg-black border-b border-gray-800 mb-2 last:mb-0">
             {/* Post Header */}
             <div className="flex items-center justify-between p-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[2px]">
-                  <div className="w-full h-full bg-white rounded-full p-[2px]">
-                     <img src={post.userAvatar || 'https://placehold.co/100x100/AAAAAA/FFFFFF?text=U'} className="w-full h-full rounded-full object-cover" alt="Avatar"/>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-fuchsia-400 to-pink-600 p-[2px]">
+                  <div className="w-full h-full bg-black rounded-full p-[2px]">
+                     <img src={post.userAvatar || 'https://placehold.co/100x100/1F2937/FFFFFF?text=U'} className="w-full h-full rounded-full object-cover" alt="Avatar"/>
                   </div>
                 </div>
-                <span className="font-semibold text-sm">{post.username}</span>
+                <span className="font-semibold text-sm text-white">{post.username}</span>
               </div>
-              <MoreHorizontal size={20} className="text-gray-600" />
+              <MoreHorizontal size={20} className="text-gray-400" />
             </div>
 
             {/* Post Image */}
-            <div className="aspect-square bg-gray-100 w-full relative overflow-hidden">
+            <div className="aspect-square bg-gray-900 w-full relative overflow-hidden">
               <img src={post.imageUrl} alt="Conteúdo do Post" className="w-full h-full object-cover" 
-                   onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x600/6B7280/FFFFFF?text=Imagem+N%C3%A3o+Encontrada"; }}
+                   onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x600/374151/FFFFFF?text=Imagem+N%C3%A3o+Encontrada"; }}
               />
             </div>
 
             {/* Post Actions */}
             <div className="p-3">
               <div className="flex justify-between items-center mb-2">
-                <button onClick={() => handleLike(post.id)} className="transition-transform active:scale-125 focus:outline-none">
-                    <Heart size={26} className="text-black hover:fill-red-500 hover:text-red-500" />
-                </button>
                 <div className="flex gap-4">
-                  <MessageCircle size={26} className="text-black -rotate-90 hover:text-gray-600" />
-                  <Send size={26} className="text-black hover:text-gray-600" />
+                  <button onClick={() => handleLike(post.id)} className="transition-transform active:scale-125 focus:outline-none">
+                    <Heart size={26} className="text-white hover:fill-red-500 hover:text-red-500" />
+                  </button>
+                  <MessageCircle size={26} className="text-white -rotate-90 hover:text-fuchsia-400" />
+                  <Send size={26} className="text-white hover:text-fuchsia-400" />
                 </div>
-                <Bookmark size={26} className="text-black hover:text-gray-600" />
+                <Bookmark size={26} className="text-white hover:text-fuchsia-400" />
               </div>
 
-              <div className="font-semibold text-sm mb-1">{post.likes || 0} curtidas</div>
+              <div className="font-semibold text-sm mb-1 text-white">{post.likes || 0} curtidas</div>
               
-              <div className="text-sm">
-                <span className="font-semibold mr-2">{post.username}</span>
+              <div className="text-sm text-gray-200">
+                <span className="font-semibold mr-2 text-white">{post.username}</span>
                 {post.caption}
               </div>
               
-              <div className="text-gray-400 text-xs mt-1 uppercase">{post.timestamp}</div>
+              <div className="text-gray-500 text-xs mt-1 uppercase">{post.timestamp}</div>
             </div>
           </article>
         ))
@@ -208,16 +208,17 @@ export default function App() {
   );
 
   const renderCreate = () => (
-    <div className="p-4 max-w-md mx-auto h-screen bg-white flex flex-col">
-        <div className="flex justify-between items-center mb-6 border-b pb-3">
+    // DARK MODE: Tela de criação
+    <div className="p-4 max-w-md mx-auto h-screen bg-gray-900 flex flex-col text-white">
+        <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-3">
             <h2 className="font-bold text-xl">Nova Publicação</h2>
-            <button onClick={() => setView('home')} className="text-gray-600 hover:text-black">
+            <button onClick={() => setView('home')} className="text-gray-400 hover:text-white">
                 <X size={24} />
             </button>
         </div>
 
         <div className="space-y-4 flex-1">
-            <div className="border border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 min-h-[250px] shadow-inner">
+            <div className="border border-gray-700 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-800 min-h-[250px] shadow-inner">
                 {newPostImage ? (
                     <div className="relative w-full aspect-square">
                         <img src={newPostImage} className="w-full h-full object-contain rounded-md" alt="Preview"/>
@@ -230,12 +231,12 @@ export default function App() {
                     </div>
                 ) : (
                     <>
-                        <Camera size={48} className="text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-500 mb-4">Insira a URL de uma imagem</p>
+                        <Camera size={48} className="text-gray-500 mb-2" />
+                        <p className="text-sm text-gray-400 mb-4">Insira a URL de uma imagem</p>
                         <input 
                             type="text" 
                             placeholder="https://..." 
-                            className="w-full p-2 border border-blue-300 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 border border-fuchsia-500 rounded-lg text-sm text-gray-100 bg-gray-700 text-center focus:ring-2 focus:ring-fuchsia-400"
                             onChange={(e) => setNewPostImage(e.target.value)}
                             value={newPostImage}
                         />
@@ -244,7 +245,7 @@ export default function App() {
             </div>
 
             <textarea 
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-fuchsia-500 text-gray-100 bg-gray-800"
                 rows="3"
                 placeholder="Escreva uma legenda... (Ex: Minha primeira query no Neon!)"
                 value={newPostCaption}
@@ -263,31 +264,32 @@ export default function App() {
   );
 
   const renderProfile = () => (
-    <div className="bg-white min-h-screen pb-16 max-w-md mx-auto">
-      <div className="p-4 border-b border-gray-200">
+    // DARK MODE: Tela de perfil
+    <div className="bg-gray-900 min-h-screen pb-16 max-w-md mx-auto text-white">
+      <div className="p-4 border-b border-gray-800">
          <div className="flex items-center gap-6 mb-4">
-             <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[2px]">
-                 <img src={currentUser.avatar} className="w-full h-full rounded-full border-2 border-white object-cover" alt="User Avatar"/>
+             <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-fuchsia-400 to-pink-600 p-[2px]">
+                 <img src={currentUser.avatar} className="w-full h-full rounded-full border-2 border-gray-900 object-cover" alt="User Avatar"/>
              </div>
              <div className="flex-1">
                  <div className="flex gap-4 mb-2 justify-center">
                      <div className="text-center">
                          <div className="font-bold">{posts.filter(p => p.username === currentUser.username).length}</div>
-                         <div className="text-xs text-gray-500">Publicações</div>
+                         <div className="text-xs text-gray-400">Publicações</div>
                      </div>
                      <div className="text-center">
                          <div className="font-bold">NEON</div>
-                         <div className="text-xs text-gray-500">DB Status</div>
+                         <div className="text-xs text-gray-400">DB Status</div>
                      </div>
                  </div>
              </div>
          </div>
          <div className="mb-4">
              <div className="font-bold text-sm">{currentUser.fullName}</div>
-             <div className="text-sm text-gray-600 flex items-center gap-1">
+             <div className="text-sm text-gray-400 flex items-center gap-1">
                 <User size={14} /> @{currentUser.username}
              </div>
-             <div className="text-xs text-green-600 mt-1 font-mono">Status: Pronto para Deploy</div>
+             <div className="text-xs text-fuchsia-400 mt-1 font-mono">Status: Pronto para Deploy</div>
          </div>
          <Button variant="secondary" className="w-full text-xs py-1.5 h-8">Editar Perfil</Button>
       </div>
@@ -304,8 +306,10 @@ export default function App() {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen flex justify-center">
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative">
+    // DARK MODE: Fundo geral cinza escuro
+    <div className="bg-gray-900 min-h-screen flex justify-center">
+      {/* DARK MODE: Container principal em preto */}
+      <div className="w-full max-w-md bg-black min-h-screen shadow-2xl relative">
         {view !== 'create' && renderHeader()}
         
         <main>
