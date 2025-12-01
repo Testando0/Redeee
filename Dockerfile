@@ -3,26 +3,23 @@
 # -----------------------------------------------------------------------------
 FROM node:20-alpine AS builder
 
-# 1. Copia o backend/package.json (o único que você tem) e o server.js
+# Define o diretório de trabalho como a raiz da aplicação
 WORKDIR /app
+
+# Copia os arquivos de configuração do backend e o package.json
 COPY backend/package.json .
 COPY backend/server.js .
 
-# 2. Instala TODAS as dependências do backend (incluindo as de dev como Vite e React)
+# Instala TODAS as dependências (incluindo as de dev como Vite e React)
+# O Vite precisa dessas dependências para o build
 RUN npm install
 
-# 3. Copia TODO o código fonte (Frontend e Backend)
-COPY backend/ /app/backend/
-COPY frontend/ /app/frontend/
+# Copia o restante do código fonte (Frontend e configurações do Vite)
+COPY backend/vite.config.js ./backend/
+COPY frontend/ ./frontend/
 
-# 4. CONFIGURAÇÃO CRÍTICA DO BUILD:
-# Mudamos o diretório de trabalho para onde o index.html está (frontend).
-# Rodamos o build DENTRO do /app/frontend.
-# O resultado (dist) será criado em /app/frontend/dist.
-WORKDIR /app/frontend
-
-# CRÍTICO: Roda o build (que usa o script definido no backend/package.json)
-# O build deve funcionar aqui porque o index.html e main.jsx estão no diretório atual.
+# CRÍTICO: Roda o build a partir da raiz. 
+# O script 'build' no package.json será atualizado para ser explícito.
 RUN npm run build
 
 # -----------------------------------------------------------------------------
@@ -41,8 +38,8 @@ RUN npm install --only=production
 COPY --from=builder /app/server.js .
 
 # 3. Copia os arquivos estáticos do Frontend (já construídos)
-# O build foi feito em /app/frontend/dist e é copiado para /app/public (como o server.js espera)
-COPY --from=builder /app/frontend/dist /app/public
+# O build do Vite coloca o resultado no diretório 'dist'
+COPY --from=builder /app/dist /app/public
 
 EXPOSE 3001 
 # Comando de inicialização: Roda o servidor Node.js.
