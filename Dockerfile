@@ -3,21 +3,26 @@
 # -----------------------------------------------------------------------------
 FROM node:20-alpine AS builder
 
-# O diretório de trabalho será o backend, onde está o único package.json
-WORKDIR /app/backend
+# 1. Copia o backend/package.json (o único que você tem) e o server.js
+WORKDIR /app
+COPY backend/package.json .
+COPY backend/server.js .
 
-# CRÍTICO: Copia TODAS as pastas (backend e frontend) para o contexto de build.
-# Isso garante que o package.json e os arquivos do React estejam no lugar.
+# 2. Instala TODAS as dependências do backend (incluindo as de dev como Vite e React)
+RUN npm install
+
+# 3. Copia TODO o código fonte (Frontend e Backend)
 COPY backend/ /app/backend/
 COPY frontend/ /app/frontend/
 
-# 1. Instala todas as dependências (incluindo as de dev, como Vite)
-# Roda o npm install na pasta /app/backend
-RUN npm install
+# 4. CONFIGURAÇÃO CRÍTICA DO BUILD:
+# Mudamos o diretório de trabalho para onde o index.html está (frontend).
+# Rodamos o build DENTRO do /app/frontend.
+# O resultado (dist) será criado em /app/frontend/dist.
+WORKDIR /app/frontend
 
-# 2. Executa o build do Frontend
-# O script 'build' está no backend/package.json e usa o vite.config.js
-# O resultado do build (dist) será criado dentro de /app/backend/
+# CRÍTICO: Roda o build (que usa o script definido no backend/package.json)
+# O build deve funcionar aqui porque o index.html e main.jsx estão no diretório atual.
 RUN npm run build
 
 # -----------------------------------------------------------------------------
@@ -25,18 +30,19 @@ RUN npm run build
 # -----------------------------------------------------------------------------
 FROM node:20-alpine
 
+# Define o diretório de trabalho principal
 WORKDIR /app
 
 # 1. Copia o package.json do estágio anterior e instala SÓ as dependências de produção
-COPY --from=builder /app/backend/package.json .
+COPY --from=builder /app/package.json .
 RUN npm install --only=production
 
 # 2. Copia o arquivo principal do servidor
-COPY --from=builder /app/backend/server.js .
+COPY --from=builder /app/server.js .
 
 # 3. Copia os arquivos estáticos do Frontend (já construídos)
-# O build foi feito em /app/backend/dist, mas copiamos para /app/public (como o server.js espera)
-COPY --from=builder /app/backend/dist /app/public
+# O build foi feito em /app/frontend/dist e é copiado para /app/public (como o server.js espera)
+COPY --from=builder /app/frontend/dist /app/public
 
 EXPOSE 3001 
 # Comando de inicialização: Roda o servidor Node.js.
