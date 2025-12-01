@@ -25,6 +25,7 @@ const currentUser = {
   avatar: 'https://ui-avatars.com/api/?name=Neon+Dev&background=0D8ABC&color=fff'
 };
 
+// URL vazia para ambiente de produção, onde a API e o Frontend rodam no mesmo host.
 const API_URL = ''; 
 
 export default function App() {
@@ -81,10 +82,11 @@ export default function App() {
           setNewPostCaption('');
           setView('home');
       } else {
-          alert("Falha ao publicar. Erro na API.");
+          // Aqui você usaria um modal em produção, mas alert para testes
+          console.error("Falha ao publicar. Erro na API.");
       }
     } catch (error) {
-      alert("Erro ao publicar. Verifique a URL e o prefixo /api.");
+      console.error("Erro ao publicar. Verifique a URL e o prefixo /api.", error);
     } finally {
       setIsPublishing(false);
     }
