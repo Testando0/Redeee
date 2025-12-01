@@ -24,8 +24,9 @@ const currentUser = {
   avatar: 'https://ui-avatars.com/api/?name=Neon+Dev&background=0D8ABC&color=fff'
 };
 
-// URL ONDE O BACKEND ESTÁ RODANDO
-const API_URL = 'http://localhost:3001';
+// ATUALIZAÇÃO CRÍTICA: Em produção, a API e o Frontend rodam no mesmo host.
+// Por isso, deixamos a URL vazia e usamos o prefixo /api nas chamadas.
+const API_URL = ''; 
 
 export default function App() {
   const [view, setView] = useState('home');
@@ -42,7 +43,8 @@ export default function App() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/posts`);
+      // ATUALIZADO: Usando /api/posts
+      const res = await fetch(`${API_URL}/api/posts`); 
       if (!res.ok) throw new Error('Falha na API');
       const data = await res.json();
       setPosts(data);
@@ -67,7 +69,8 @@ export default function App() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/posts`, {
+      // ATUALIZADO: Usando /api/posts
+      const res = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPost)
@@ -82,14 +85,14 @@ export default function App() {
           alert("Falha ao publicar. Erro na API.");
       }
     } catch (error) {
-      alert("Erro ao publicar. Verifique se o server.js está rodando na porta 3001.");
+      alert("Erro ao publicar. Verifique a URL e o prefixo /api.");
     } finally {
       setIsPublishing(false);
     }
   };
 
   const handleLike = async (postId) => {
-    // Atualização otimista
+    // Atualização otimista: UI atualiza antes da resposta da API
     setPosts(posts.map(post => {
       if (post.id === postId) {
         return { ...post, likes: (post.likes || 0) + 1 };
@@ -98,9 +101,12 @@ export default function App() {
     }));
 
     try {
-      await fetch(`${API_URL}/posts/${postId}/like`, { method: 'POST' });
+      // ATUALIZADO: Usando /api/posts/:id/like
+      await fetch(`${API_URL}/api/posts/${postId}/like`, { method: 'POST' });
     } catch (error) {
       console.error("Erro ao dar like no servidor.");
+      // Em caso de falha, o usuário veria o like revertido ao recarregar, mas 
+      // para simplificar, não revertemos a contagem aqui.
     }
   };
 
@@ -281,7 +287,7 @@ export default function App() {
              <div className="text-sm text-gray-600 flex items-center gap-1">
                 <User size={14} /> @{currentUser.username}
              </div>
-             <div className="text-xs text-green-600 mt-1 font-mono">Status: Online via API 3001</div>
+             <div className="text-xs text-green-600 mt-1 font-mono">Status: Pronto para Deploy</div>
          </div>
          <Button variant="secondary" className="w-full text-xs py-1.5 h-8">Editar Perfil</Button>
       </div>
