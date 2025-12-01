@@ -11,10 +11,9 @@ export default defineConfig({
     // Define o ponto de entrada principal: ../frontend/index.html
     // O resolve garante que o caminho seja absoluto a partir do diretório raiz.
     rollupOptions: {
-      input: path.resolve(__dirname, '..', 'frontend', 'index.html'),
+      input: path.resolve(process.cwd(), 'frontend', 'index.html'),
     },
     // O diretório de saída será 'dist', dentro da pasta 'backend'.
-    // O Dockerfile irá copiar esse 'dist' para 'public' no estágio final.
     outDir: 'dist',
     emptyOutDir: true
   }
