@@ -1,43 +1,43 @@
 # -----------------------------------------------------------------------------
-# STAGE 1: CONSTRUÇÃO DO FRONTEND (REACT/VITE)
-# Objetivo: Criar a pasta 'dist' otimizada do React.
+# STAGE 1: CONSTRUÇÃO (Instala dependências e faz o build do Frontend)
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS frontend_builder
+FROM node:20-alpine AS builder
 
-WORKDIR /app/frontend
+# O diretório de trabalho será o backend, onde está o único package.json
+WORKDIR /app/backend
 
-# 1. Copia o package.json e instala as dependências do frontend.
-# OMITIMOS o package-lock.json para evitar o erro de arquivo não encontrado.
-COPY frontend/package.json .
+# CRÍTICO: Copia TODAS as pastas (backend e frontend) para o contexto de build.
+# Isso garante que o package.json e os arquivos do React estejam no lugar.
+COPY backend/ /app/backend/
+COPY frontend/ /app/frontend/
+
+# 1. Instala todas as dependências (incluindo as de dev, como Vite)
+# Roda o npm install na pasta /app/backend
 RUN npm install
 
-# 2. Copia o código fonte do frontend e executa o build (cria a pasta 'dist')
-COPY frontend/ /app/frontend
+# 2. Executa o build do Frontend
+# O script 'build' está no backend/package.json e usa o vite.config.js
+# O resultado do build (dist) será criado dentro de /app/backend/
 RUN npm run build
 
 # -----------------------------------------------------------------------------
-# STAGE 2: BACKEND E AMBIENTE DE EXECUÇÃO (RUNTIME)
-# Objetivo: Servir a API e os arquivos estáticos do Frontend.
+# STAGE 2: AMBIENTE DE EXECUÇÃO (RUNTIME)
 # -----------------------------------------------------------------------------
 FROM node:20-alpine
 
-# Define o diretório de trabalho principal
 WORKDIR /app
 
-# 1. Configuração e Instalação do Backend (API)
-# OMITIMOS o package-lock.json do backend também para máxima compatibilidade.
-COPY backend/package.json .
+# 1. Copia o package.json do estágio anterior e instala SÓ as dependências de produção
+COPY --from=builder /app/backend/package.json .
 RUN npm install --only=production
 
-# 2. Copia o código do servidor (o server.js unificado)
-COPY backend/server.js .
+# 2. Copia o arquivo principal do servidor
+COPY --from=builder /app/backend/server.js .
 
 # 3. Copia os arquivos estáticos do Frontend (já construídos)
-# Copia o resultado do build do Stage 1 para a pasta 'public' do nosso servidor Node.
-COPY --from=frontend_builder /app/frontend/dist /app/public
+# O build foi feito em /app/backend/dist, mas copiamos para /app/public (como o server.js espera)
+COPY --from=builder /app/backend/dist /app/public
 
-# 4. Configuração de Rede
 EXPOSE 3001 
-
 # Comando de inicialização: Roda o servidor Node.js.
 CMD ["node", "server.js"]
